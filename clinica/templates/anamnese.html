@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Anamnese — {{ cliente.nome }}{% endblock %}
+{% block content %}
+
+<div class="page-header">
+    <a href="/clientes/{{ cliente.id }}" class="btn-back">← Voltar</a>
+    <h1 class="page-title">Ficha de Anamnese</h1>
+</div>
+
+<div class="profile-mini">
+    <div class="client-avatar">{{ cliente.nome[0].upper() }}</div>
+    <span class="profile-mini-nome">{{ cliente.nome }}</span>
+    {% if anamnese and anamnese.data_atualizacao %}
+    <span class="profile-mini-data">Atualizada em {{ anamnese.data_atualizacao[:10] }}</span>
+    {% endif %}
+</div>
+
+<form method="post" class="form-card">
+
+    <div class="form-section-title">Saúde Geral</div>
+
+    <div class="form-row">
+        <div class="form-group form-check-group">
+            <label class="check-label">
+                <input type="checkbox" name="gestante" value="1"
+                       {% if anamnese and anamnese.gestante %}checked{% endif %}>
+                <span class="check-box"></span>
+                Gestante
+            </label>
+        </div>
+        <div class="form-group form-check-group">
+            <label class="check-label">
+                <input type="checkbox" name="fumante" value="1"
+                       {% if anamnese and anamnese.fumante %}checked{% endif %}>
+                <span class="check-box"></span>
+                Fumante
+            </label>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="form-label">Alergias</label>
+        <textarea name="alergias" class="form-input form-textarea"
+                  placeholder="Ex: látex, anestésico, cosméticos…">{{ anamnese.alergias if anamnese else '' }}</textarea>
+    </div>
+
+    <div class="form-group">
+        <label class="form-label">Medicamentos em uso</label>
+        <textarea name="medicamentos" class="form-input form-textarea"
+                  placeholder="Liste os medicamentos que a cliente usa regularmente…">{{ anamnese.medicamentos if anamnese else '' }}</textarea>
+    </div>
+
+    <div class="form-group">
+        <label class="form-label">Doenças / Condições de saúde</label>
+        <textarea name="doencas" class="form-input form-textarea"
+                  placeholder="Ex: diabetes, hipertensão, doenças autoimunes…">{{ anamnese.doencas if anamnese else '' }}</textarea>
+    </div>
+
+    <div class="form-section-title">Pele & Histórico Estético</div>
+
+    <div class="form-group">
+        <label class="form-label">Problemas de pele</label>
+        <textarea name="problemas_pele" class="form-input form-textarea"
+                  placeholder="Ex: acne, rosácea, melasma, pele sensível…">{{ anamnese.problemas_pele if anamnese else '' }}</textarea>
+    </div>
+
+    <div class="form-group">
+        <label class="form-label">Cirurgias ou procedimentos anteriores</label>
+        <textarea name="cirurgias" class="form-input form-textarea"
+                  placeholder="Ex: preenchimento, botox, cirurgia plástica…">{{ anamnese.cirurgias if anamnese else '' }}</textarea>
+    </div>
+
+    <div class="form-section-title">Observações Gerais</div>
+
+    <div class="form-group">
+        <label class="form-label">Anotações livres</label>
+        <textarea name="observacoes" class="form-input form-textarea form-textarea-lg"
+                  placeholder="Qualquer informação relevante para o atendimento…">{{ anamnese.observacoes if anamnese else '' }}</textarea>
+    </div>
+
+    <div class="form-actions">
+        <a href="/clientes/{{ cliente.id }}" class="btn btn-outline">Cancelar</a>
+        <button type="submit" class="btn btn-primary">Salvar Anamnese</button>
+    </div>
+</form>
+
+{% endblock %}

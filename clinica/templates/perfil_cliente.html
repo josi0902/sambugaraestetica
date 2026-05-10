@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+{% block title %}{{ cliente.nome }} — Sambugaro Estética{% endblock %}
+{% block content %}
+
+<div class="page-header">
+    <a href="/clientes" class="btn-back">← Clientes</a>
+    <a href="/clientes/{{ cliente.id }}/editar" class="btn btn-outline btn-sm">Editar</a>
+</div>
+
+<div class="profile-card">
+    <div class="profile-avatar">{{ cliente.nome[0].upper() }}</div>
+    <h2 class="profile-name">{{ cliente.nome }}</h2>
+    {% if cliente.telefone %}<p class="profile-info">📱 {{ cliente.telefone }}</p>{% endif %}
+    {% if cliente.email %}<p class="profile-info">✉️ {{ cliente.email }}</p>{% endif %}
+    {% if cliente.data_nascimento %}<p class="profile-info">🎂 {{ cliente.data_nascimento }}</p>{% endif %}
+</div>
+
+<div class="fidelidade-card">
+    <div class="fidelidade-header">
+        <span class="fidelidade-titulo">✦ Programa de Fidelidade</span>
+        {% if cliente.desconto_atual > 0 %}
+        <span class="badge badge-desconto badge-lg">{{ cliente.desconto_atual|int }}% de desconto</span>
+        {% endif %}
+    </div>
+    <div class="fidelidade-visitas">
+        <span class="visitas-num">{{ cliente.total_visitas }}</span>
+        <span class="visitas-label">visitas concluídas</span>
+    </div>
+    {% if proximo_nivel %}
+    <div class="fidelidade-progresso">
+        <p class="progresso-text">
+            Mais <strong>{{ proximo_nivel.visitas_faltam }} visita{{ 's' if proximo_nivel.visitas_faltam != 1 }}</strong>
+            para {{ proximo_nivel.desconto }}% de desconto!
+        </p>
+        <div class="progress-bar-track">
+            {% set atual = cliente.total_visitas %}
+            {% if atual < 5 %}{% set pct = (atual / 5 * 100)|int %}
+            {% elif atual < 10 %}{% set pct = ((atual - 5) / 5 * 100)|int %}
+            {% else %}{% set pct = ((atual - 10) / 10 * 100)|int %}{% endif %}
+            <div class="progress-bar-fill" style="width: {{ pct }}%"></div>
+        </div>
+    </div>
+    {% else %}
+    <p class="progresso-text">🏆 Nível máximo de fidelidade atingido!</p>
+    {% endif %}
+</div>
+
+<!-- ANAMNESE -->
+<div class="section-header">
+    <h2 class="section-title">Anamnese</h2>
+    <a href="/clientes/{{ cliente.id }}/anamnese" class="btn btn-outline btn-sm">
+        {{ 'Editar' if anamnese else '+ Preencher' }}
+    </a>
+</div>
+
+{% if anamnese %}
+<div class="anamnese-card">
+    {% if anamnese.gestante or anamnese.fumante %}
+    <div class="anamnese-tags">
+        {% if anamnese.gestante %}<span class="atag atag-alert">Gestante</span>{% endif %}
+        {% if anamnese.fumante %}<span class="atag atag-warn">Fumante</span>{% endif %}
+    </div>
+    {% endif %}
+    {% if anamnese.alergias %}
+    <div class="anamnese-row"><span class="anamnese-label">Alergias</span><span class="anamnese-val">{{ anamnese.alergias }}</span></div>
+    {% endif %}
+    {% if anamnese.medicamentos %}
+    <div class="anamnese-row"><span class="anamnese-label">Medicamentos</span><span class="anamnese-val">{{ anamnese.medicamentos }}</span></div>
+    {% endif %}
+    {% if anamnese.doencas %}
+    <div class="anamnese-row"><span class="anamnese-label">Condições</span><span class="anamnese-val">{{ anamnese.doencas }}</span></div>
+    {% endif %}
+    {% if anamnese.problemas_pele %}
+    <div class="anamnese-row"><span class="anamnese-label">Pele</span><span class="anamnese-val">{{ anamnese.problemas_pele }}</span></div>
+    {% endif %}
+    {% if anamnese.cirurgias %}
+    <div class="anamnese-row"><span class="anamnese-label">Cirurgias</span><span class="anamnese-val">{{ anamnese.cirurgias }}</span></div>
+    {% endif %}
+    {% if anamnese.observacoes %}
+    <div class="anamnese-row"><span class="anamnese-label">Obs.</span><span class="anamnese-val">{{ anamnese.observacoes }}</span></div>
+    {% endif %}
+    <p class="anamnese-data">Atualizada em {{ anamnese.data_atualizacao[:10] }}</p>
+</div>
+{% else %}
+<div class="empty-state empty-state-sm"><p>Ficha de anamnese não preenchida ainda.</p></div>
+{% endif %}
+
+<!-- GALERIA -->
+<div class="section-header">
+    <h2 class="section-title">Fotos de Evolução</h2>
+</div>
+
+<form method="post" action="/clientes/{{ cliente.id }}/fotos/upload"
+      enctype="multipart/form-data" class="upload-form">
+    <div class="upload-inline">
+        <div class="upload-area upload-area-sm">
+            <input type="file" name="foto" id="fotoGaleria" accept="image/*"
+                   onchange="previewGaleria(this)" class="upload-input">
+            <div id="galPlaceholder">
+                <span class="upload-icon">📷</span>
+                <span class="upload-text">Selecionar foto</span>
+            </div>
+            <img id="galPreview" class="foto-preview-sm" style="display:none">
+        </div>
+        <div class="upload-inline-fields">
+            <input type="text" name="descricao" class="form-input"
+                   placeholder="Descrição (antes, depois, sessão 3…)">
+            <button type="submit" class="btn btn-primary btn-sm">Enviar</button>
+        </div>
+    </div>
+</form>
+
+{% if fotos %}
+<div class="galeria-grid">
+    {% for foto in fotos %}
+    <div class="galeria-item">
+        <img src="/uploads/{{ foto.filename }}" alt="{{ foto.descricao or 'Foto' }}"
+             class="galeria-img" onclick="abrirFoto(this)">
+        <div class="galeria-info">
+            {% if foto.descricao %}<p class="galeria-desc">{{ foto.descricao }}</p>{% endif %}
+            {% if foto.proc_nome %}<p class="galeria-proc">{{ foto.proc_nome }}</p>{% endif %}
+            <p class="galeria-data">{{ foto.data_upload[:10] }}</p>
+        </div>
+        <form method="post" action="/fotos/{{ foto.id }}/excluir"
+              onsubmit="return confirm('Excluir esta foto?')">
+            <button type="submit" class="galeria-del" title="Excluir">✕</button>
+        </form>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state empty-state-sm"><p>Nenhuma foto adicionada ainda.</p></div>
+{% endif %}
+
+<div class="lightbox" id="lightbox" onclick="fecharFoto()">
+    <img id="lightboxImg" src="" alt="">
+</div>
+
+<!-- HISTÓRICO -->
+<div class="section-header">
+    <h2 class="section-title">Histórico</h2>
+    <a href="/agendamentos/novo" class="btn btn-primary btn-sm">+ Agendar</a>
+</div>
+
+{% if historico %}
+<div class="card-list">
+    {% for ag in historico %}
+    <div class="list-card">
+        <div class="list-card-main">
+            <span class="list-name">{{ ag.proc_nome }}</span>
+            <span class="list-proc">{{ ag.data_hora[:16] }}</span>
+        </div>
+        <div class="list-card-side">
+            <span class="badge badge-{{ ag.status }}">{{ ag.status }}</span>
+            {% if ag.preco_final %}
+            <span class="list-price">
+                R$ {{ "%.2f"|format(ag.preco_final) }}
+                {% if ag.desconto_aplicado > 0 %}
+                <small class="desconto-tag">-{{ ag.desconto_aplicado|int }}%</small>
+                {% endif %}
+            </span>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state"><p>Nenhum procedimento realizado ainda.</p></div>
+{% endif %}
+
+{% endblock %}
+{% block scripts %}
+<script>
+function previewGaleria(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = e => {
+            document.getElementById('galPreview').src = e.target.result;
+            document.getElementById('galPreview').style.display = 'block';
+            document.getElementById('galPlaceholder').style.display = 'none';
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+function abrirFoto(img) {
+    document.getElementById('lightboxImg').src = img.src;
+    document.getElementById('lightbox').classList.add('open');
+}
+function fecharFoto() {
+    document.getElementById('lightbox').classList.remove('open');
+}
+</script>
+{% endblock %}

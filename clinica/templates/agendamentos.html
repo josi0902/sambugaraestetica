@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Agendamentos — Sambugaro Estética{% endblock %}
+{% block content %}
+
+<div class="page-header">
+    <h1 class="page-title">Agendamentos</h1>
+    <a href="/agendamentos/novo" class="btn btn-primary">+ Novo</a>
+</div>
+
+{% if agendamentos %}
+<div class="card-list">
+    {% for ag in agendamentos %}
+    <div class="list-card list-card--agendamento">
+        <div class="list-card-main">
+            <span class="list-name">{{ ag.cliente_nome }}</span>
+            <span class="list-proc">{{ ag.proc_nome }}</span>
+            <span class="list-date">{{ ag.data_hora[:16] }}</span>
+        </div>
+        <div class="list-card-side">
+            <span class="badge badge-{{ ag.status }}">{{ ag.status }}</span>
+            {% if ag.preco_final %}
+            <span class="list-price">
+                R$ {{ "%.2f"|format(ag.preco_final) }}
+                {% if ag.desconto_aplicado > 0 %}
+                <small class="desconto-tag">-{{ ag.desconto_aplicado|int }}%</small>
+                {% endif %}
+            </span>
+            {% endif %}
+            {% if ag.status == 'agendado' %}
+            <div class="ag-actions">
+                <form method="post" action="/agendamentos/{{ ag.id }}/concluir" style="display:inline">
+                    <button type="submit" class="btn-action btn-concluir" title="Concluir">✓</button>
+                </form>
+                <form method="post" action="/agendamentos/{{ ag.id }}/cancelar" style="display:inline"
+                      onsubmit="return confirm('Cancelar este agendamento?')">
+                    <button type="submit" class="btn-action btn-cancelar" title="Cancelar">✕</button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+    <p>Nenhum agendamento ainda.</p>
+    <a href="/agendamentos/novo" class="btn btn-outline">Criar agendamento</a>
+</div>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Editar' if cliente else 'Novo' }} Cliente — Sambugaro Estética{% endblock %}
+{% block content %}
+
+<div class="page-header">
+    <a href="/clientes" class="btn-back">← Voltar</a>
+    <h1 class="page-title">{{ 'Editar Cliente' if cliente else 'Novo Cliente' }}</h1>
+</div>
+
+<form method="post" class="form-card">
+    <div class="form-group">
+        <label class="form-label">Nome completo *</label>
+        <input type="text" name="nome" class="form-input" required
+               value="{{ cliente.nome if cliente else '' }}" placeholder="Ex: Ana Silva">
+    </div>
+    <div class="form-group">
+        <label class="form-label">Telefone / WhatsApp</label>
+        <input type="tel" name="telefone" class="form-input"
+               value="{{ cliente.telefone if cliente else '' }}" placeholder="(48) 99999-9999">
+    </div>
+    <div class="form-group">
+        <label class="form-label">E-mail</label>
+        <input type="email" name="email" class="form-input"
+               value="{{ cliente.email if cliente else '' }}" placeholder="ana@email.com">
+    </div>
+    <div class="form-group">
+        <label class="form-label">Data de Nascimento</label>
+        <input type="date" name="data_nascimento" class="form-input"
+               value="{{ cliente.data_nascimento if cliente else '' }}">
+    </div>
+    <div class="form-actions">
+        <a href="/clientes" class="btn btn-outline">Cancelar</a>
+        <button type="submit" class="btn btn-primary">
+            {{ 'Salvar alterações' if cliente else 'Cadastrar cliente' }}
+        </button>
+    </div>
+</form>
+
+{% if cliente %}
+<div class="danger-zone">
+    <p class="danger-label">Zona de perigo</p>
+    <form method="post" action="/clientes/{{ cliente.id }}/excluir"
+          onsubmit="return confirm('Excluir este cliente e todos os seus agendamentos?')">
+        <button type="submit" class="btn btn-danger">Excluir cliente</button>
+    </form>
+</div>
+{% endif %}
+
+{% endblock %}

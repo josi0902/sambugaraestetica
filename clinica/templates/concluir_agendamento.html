@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Concluir Atendimento{% endblock %}
+{% block content %}
+
+<div class="page-header">
+    <a href="/agendamentos" class="btn-back">← Voltar</a>
+    <h1 class="page-title">Concluir Atendimento</h1>
+</div>
+
+<div class="form-card" style="margin-bottom:16px">
+    <div class="conclude-info">
+        <div class="conclude-row">
+            <span class="conclude-label">Cliente</span>
+            <span class="conclude-val">{{ cliente.nome }}</span>
+        </div>
+        <div class="conclude-row">
+            <span class="conclude-label">Procedimento</span>
+            <span class="conclude-val">{{ proc.nome }}</span>
+        </div>
+        <div class="conclude-row">
+            <span class="conclude-label">Data</span>
+            <span class="conclude-val">{{ ag.data_hora[:16] }}</span>
+        </div>
+        <div class="conclude-row">
+            <span class="conclude-label">Valor</span>
+            <span class="conclude-val">R$ {{ "%.2f"|format(ag.preco_final) }}</span>
+        </div>
+    </div>
+</div>
+
+<form method="post" enctype="multipart/form-data" class="form-card">
+    <div class="form-section-title">Foto do procedimento <span class="optional-tag">opcional</span></div>
+
+    <div class="form-group">
+        <label class="form-label">Foto (antes/depois ou resultado)</label>
+        <div class="upload-area" id="uploadArea">
+            <input type="file" name="foto" id="fotoInput" accept="image/*"
+                   onchange="previewFoto(this)" class="upload-input">
+            <div class="upload-placeholder" id="uploadPlaceholder">
+                <span class="upload-icon">📷</span>
+                <span class="upload-text">Toque para selecionar uma foto</span>
+                <span class="upload-hint">JPG, PNG ou WEBP</span>
+            </div>
+            <img id="fotoPreview" class="foto-preview" style="display:none">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="form-label">Descrição da foto</label>
+        <input type="text" name="descricao" class="form-input"
+               placeholder="Ex: resultado após sessão, antes do procedimento…">
+    </div>
+
+    <div class="form-actions">
+        <a href="/agendamentos" class="btn btn-outline">Cancelar</a>
+        <button type="submit" class="btn btn-primary">✓ Concluir Atendimento</button>
+    </div>
+</form>
+
+{% endblock %}
+{% block scripts %}
+<script>
+function previewFoto(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = e => {
+            document.getElementById('fotoPreview').src = e.target.result;
+            document.getElementById('fotoPreview').style.display = 'block';
+            document.getElementById('uploadPlaceholder').style.display = 'none';
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+</script>
+{% endblock %}

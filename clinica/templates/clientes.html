@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Clientes — Sambugaro Estética{% endblock %}
+{% block content %}
+
+<div class="page-header">
+    <h1 class="page-title">Clientes</h1>
+    <a href="/clientes/novo" class="btn btn-primary">+ Novo</a>
+</div>
+
+<div class="search-bar">
+    <form method="get">
+        <input type="text" name="q" placeholder="Buscar por nome, telefone ou e-mail…"
+               value="{{ q }}" class="search-input" autocomplete="off">
+    </form>
+</div>
+
+{% if clientes %}
+<div class="card-list">
+    {% for cl in clientes %}
+    <a href="/clientes/{{ cl.id }}" class="list-card list-card--link">
+        <div class="client-avatar">{{ cl.nome[0].upper() }}</div>
+        <div class="list-card-main">
+            <span class="list-name">{{ cl.nome }}</span>
+            <span class="list-proc">{{ cl.telefone or "Sem telefone" }}</span>
+        </div>
+        <div class="list-card-side">
+            {% if cl.desconto_atual > 0 %}
+            <span class="badge badge-desconto">{{ cl.desconto_atual|int }}% off</span>
+            {% endif %}
+            <span class="list-visitas">{{ cl.total_visitas }} visita{{ 's' if cl.total_visitas != 1 }}</span>
+        </div>
+    </a>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+    <p>{% if q %}Nenhum cliente encontrado para "{{ q }}"{% else %}Nenhum cliente cadastrado ainda.{% endif %}</p>
+    {% if not q %}<a href="/clientes/novo" class="btn btn-outline">Cadastrar cliente</a>{% endif %}
+</div>
+{% endif %}
+
+{% endblock %}

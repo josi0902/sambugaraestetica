@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Novo Agendamento — Sambugaro Estética{% endblock %}
+{% block content %}
+
+<div class="page-header">
+    <a href="/agendamentos" class="btn-back">← Voltar</a>
+    <h1 class="page-title">Novo Agendamento</h1>
+</div>
+
+<form method="post" class="form-card">
+    <div class="form-group">
+        <label class="form-label">Cliente *</label>
+        <select name="cliente_id" id="clienteSelect" class="form-input" required onchange="atualizarPreco()">
+            <option value="">Selecionar cliente…</option>
+            {% for cl in clientes %}
+            <option value="{{ cl.id }}" data-desconto="{{ cl.desconto_atual }}">
+                {{ cl.nome }}{% if cl.desconto_atual > 0 %} ({{ cl.desconto_atual|int }}% fidelidade){% endif %}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label class="form-label">Procedimento *</label>
+        <select name="procedimento_id" id="procSelect" class="form-input" required onchange="atualizarPreco()">
+            <option value="">Selecionar procedimento…</option>
+            {% for p in procedimentos %}
+            <option value="{{ p.id }}" data-preco="{{ p.preco }}">
+                {{ p.nome }} — R$ {{ "%.2f"|format(p.preco) }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label class="form-label">Data e Hora *</label>
+        <input type="datetime-local" name="data_hora" class="form-input" required>
+    </div>
+
+    <div class="form-group">
+        <label class="form-label">Observações</label>
+        <textarea name="observacoes" class="form-input form-textarea"
+                  placeholder="Alguma observação importante…"></textarea>
+    </div>
+
+    <div class="preco-preview" id="precoPreview" style="display:none">
+        <div class="preco-linha">
+            <span>Preço original</span>
+            <span id="precoOriginal">—</span>
+        </div>
+        <div class="preco-linha preco-desconto" id="descontoLinha" style="display:none">
+            <span>Desconto fidelidade</span>
+            <span id="descontoValor">—</span>
+        </div>
+        <div class="preco-linha preco-total">
+            <span>Total</span>
+            <span id="precoFinal">—</span>
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <a href="/agendamentos" class="btn btn-outline">Cancelar</a>
+        <button type="submit" class="btn btn-primary">Confirmar Agendamento</button>
+    </div>
+</form>
+
+{% endblock %}
+{% block scripts %}
+<script>
+async function atualizarPreco() {
+    const clienteId = document.getElementById('clienteSelect').value;
+    const procId = document.getElementById('procSelect').value;
+    if (!clienteId || !procId) {
+        document.getElementById('precoPreview').style.display = 'none';
+        return;
+    }
+    const res = await fetch(`/api/preco_preview?cliente_id=${clienteId}&proc_id=${procId}`);
+    const data = await res.json();
+    if (!data.preco_original) return;
+    document.getElementById('precoOriginal').textContent = `R$ ${data.preco_original.toFixed(2)}`;
+    document.getElementById('precoFinal').textContent = `R$ ${data.preco_final.toFixed(2)}`;
+    const dl = document.getElementById('descontoLinha');
+    if (data.desconto > 0) {
+        document.getElementById('descontoValor').textContent = `-${data.desconto}%`;
+        dl.style.display = 'flex';
+    } else {
+        dl.style.display = 'none';
+    }
+    document.getElementById('precoPreview').style.display = 'block';
+}
+</script>
+{% endblock %}

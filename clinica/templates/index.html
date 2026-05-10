@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — Sambugaro Estética{% endblock %}
+{% block content %}
+
+<div class="page-header">
+    <h1 class="page-title">Visão Geral</h1>
+    <p class="page-sub">Seja Bem-vindo, cuidar de você é minha estética ✦</p>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon">👤</div>
+        <div class="stat-value">{{ total_clientes }}</div>
+        <div class="stat-label">Clientes</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">📅</div>
+        <div class="stat-value">{{ agendamentos_pendentes }}</div>
+        <div class="stat-label">Agendados</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">✅</div>
+        <div class="stat-value">{{ atendimentos_feitos }}</div>
+        <div class="stat-label">Concluídos</div>
+    </div>
+    <div class="stat-card stat-card--accent">
+        <div class="stat-icon">💰</div>
+        <div class="stat-value">R$ {{ "%.0f"|format(receita) }}</div>
+        <div class="stat-label">Receita Total</div>
+    </div>
+</div>
+
+<div class="section-header">
+    <h2 class="section-title">Últimos Atendimentos</h2>
+    <a href="/agendamentos/novo" class="btn btn-primary">+ Novo</a>
+</div>
+
+{% if ultimos %}
+<div class="card-list">
+    {% for ag in ultimos %}
+    <div class="list-card">
+        <div class="list-card-main">
+            <span class="list-name">{{ ag.cliente_nome }}</span>
+            <span class="list-proc">{{ ag.proc_nome }}</span>
+        </div>
+        <div class="list-card-side">
+            <span class="badge badge-{{ ag.status }}">{{ ag.status }}</span>
+            {% if ag.preco_final %}
+            <span class="list-price">R$ {{ "%.2f"|format(ag.preco_final) }}</span>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+    <p>Nenhum atendimento ainda.<br>Comece agendando um procedimento!</p>
+    <a href="/agendamentos/novo" class="btn btn-outline">Agendar agora</a>
+</div>
+{% endif %}
+
+<div class="quick-actions">
+    <a href="/clientes/novo" class="quick-btn">
+        <span>👤</span> Novo Cliente
+    </a>
+    <a href="/agendamentos/novo" class="quick-btn">
+        <span>📅</span> Agendar
+    </a>
+    <a href="/clientes" class="quick-btn">
+        <span>🔍</span> Buscar Cliente
+    </a>
+</div>
+
+{% endblock %}
