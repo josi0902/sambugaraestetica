@@ -1,4 +1,4 @@
-# Bella Estética — Sistema de Gestão
+# Sambugaro Estética — Sistema de Gestão
 
 Sistema web para clínica de estética com cadastro de clientes,
 agendamentos e programa de fidelidade automático.
